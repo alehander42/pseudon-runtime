@@ -62,7 +62,7 @@ class AstEvaluator:
                 self._evaluate_block(node['otherwise'])
         elif node['type'] == 'list':
             return list(map(self._evaluate_node, node['elements']))
-        elif node['type'] == 'dict':
+        elif node['type'] == 'dictionary':
             return dict([
                 (self._evaluate_node(k), self._evaluate_node(v)) 
                 for k, v in node['pairs']])
