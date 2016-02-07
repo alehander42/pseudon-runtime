@@ -15,6 +15,7 @@ class AstFunction:
     def __call__(self, *args):
         return AstEvaluator(self.ast, args).evaluate(globals())
 
+
 class AstEvaluator:
 
     def __init__(self, ast, args):
@@ -56,8 +57,34 @@ class AstEvaluator:
         elif node['type'] == 'if_statement':
             result = self._evaluate_node(node['test'])
             if result:
-                self._evaluate_node(node['if_true'])
+                self._evaluate_block(node['if_true'])
             else:
-                self._evaluate_node(node['otherwise'])
-
-
+                self._evaluate_block(node['otherwise'])
+        elif node['type'] == 'list':
+            return list(map(self._evaluate_node, node['elements']))
+        elif node['type'] == 'dict':
+            return dict([
+                (self._evaluate_node(k), self._evaluate_node(v)) 
+                for k, v in node['pairs']])
+        elif node['type'] == 'for':
+            iterable, index = node['iterable'], node['index']
+            if iterable in self.env:
+                old_value = self.env[iterable]
+                existing_old = True
+            else:
+                existing_old = False
+            if index and index in self.env:
+                old_index = self.env[index]
+                existing_index = True
+            else:
+                existing_index = False
+            computed = self._evaluate_node(node['sequence'])
+            for j, name in enumerate(computed):
+                self.env[iterable] = name
+                if index:
+                    self.env[index] = j
+                self._evaluate_block(node['body'])
+            if existing_old:
+                self.env[iterable] = old_value
+            if existing_index:
+                self.env[index] = old_index
