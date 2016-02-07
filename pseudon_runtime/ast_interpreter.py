@@ -51,6 +51,13 @@ class AstEvaluator:
             self.env[node['local']] = self._evaluate_node(node['value'])
         elif node['type'] in ['int', 'float', 'boolean']:
             return node['value']
-
+        elif node['type'] == 'none':
+            return None
+        elif node['type'] == 'if_statement':
+            result = self._evaluate_node(node['test'])
+            if result:
+                self._evaluate_node(node['if_true'])
+            else:
+                self._evaluate_node(node['otherwise'])
 
 
