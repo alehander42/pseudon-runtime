@@ -47,4 +47,10 @@ class AstEvaluator:
                 return method_call(*map(self._evaluate_node, node['args']))                
         elif node['type'] == 'local':
             return self.env[node['name']]
+        elif node['type'] == 'local_assignment':
+            self.env[node['local']] = self._evaluate_node(node['value'])
+        elif node['type'] in ['int', 'float', 'boolean']:
+            return node['value']
+
+
 
